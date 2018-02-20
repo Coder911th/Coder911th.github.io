@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Web-events client and server</title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/default.css">
+</head>
+<body>
+    
+    <header>
+        <h1>Web-events</h1>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#download">DOWNLOAD</a>
+            <a href="#docs">Documentation</a>
+            <a href="#help-me">Help me</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home">
+            <h2>What is Web-events?</h2>
+            <p>That is a easy way to create event-oriented WebSocket connection between client and server.</p>
+
+            <h2>Example: simple chat</h2>
+            <p>Let's create simple common chat.</p>
+
+            <h3>Server</h3>
+            <pre><code>const
+    http    = require('http'),
+    express = require('express'),
+    events  = require('web-events-server'); // connect web-events-server
+
+// Creating basic file server on http
+let app = express()
+    .use(express.static(__dirname + '/client'));
+
+// Creating HTTP-server
+let server = http.createServer(app);
+
+// The base of active users
+let clients = {};
+
+// Binding event handlers to the server
+events(server, {
+
+    /*
+        This handler will be called when new user 
+        connects to the our server (Special event)
+    */
+    connection() {
+        console.log(`New user: ${this.uid}`);
+
+        /*
+            Send the 'printToChat' event to the client
+            This event will be triggered by user as soon as
+            he receives it.
+        */
+        this.emit('printToChat', 'A new user joined the chat.');
+
+        // Adding uid of user to the base
+        // This action will help you broadcast messages
+        clients[this.uid] = this; 
+    },
+
+    // Client triggered custom event named 'chat' on the server (Custom event)
+    chat(message) {
+        // Client wants to send his message to the everybody active users
+        console.log(`From ${this.uid} recieves a message "${message}"`);
+
+        // Send this broadcast message
+        for (let key in clients) // 
+            clients[key].emit('chat', message);
+
+        // If user sent a message like 'kick me' then disconnect him from chat
+        if (message == 'kick me')
+            this.close();
+    },
+
+    // This event will be triggered when user has been disconnected (Special event)
+    close(code, reason) {
+        console.log(`Close connection ${this.uid}`);
+        delete clients[this.uid]; // Removing the client from the base
+    }
+
+});
+
+// Start server on port 80
+server.listen(80);</code></pre>
+    <h3>Client</h3>
+    <h4>Markup</h4>
+    <pre><code>&lt;h1&gt;Chat&lt;/h1&gt;
+&lt;textarea id="chat-box" cols="30" rows="10" disabled&gt;&lt;/textarea&gt;
+&lt;div&gt;
+    &lt;input id="textbox" type="text">&lt;button id="send"&gt;Send&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- Connect client part of web-events --&gt;
+&lt;script src="web-events-client.js"&gt;&lt;/script&gt;
+
+&lt;!-- Connect client logic --&gt;
+&lt;script src="client-logic.js"&gt;&lt;/script&gt;
+</code></pre>
+    <h4>client-logic.js</h4>
+    <pre><code>var textbox    = document.getElementById('textbox'),
+    sendButton = document.getElementById('send'),
+    chatBox    = document.getElementById('chat-box');
+
+/*
+    Establishes a connection to the server
+    You can use return value later to trigger custom event on the server
+*/
+var socket = events({
+
+    // Connection is established successfully (Special event)
+    connection() {
+        console.log('Connection is established successfully!');
+    },
+
+    // Received message from another user (Custom event)
+    printToChat(message) {
+        // print this message to the chat
+        chatBox.value += message + '\n';
+    },
+
+    // Connection has been closed (Special event)
+    close() {
+        console.log('Вы были отключены');
+    }
+
+});
+
+// Adding click handler on send button
+sendButton.onclick = function() {
+    // Calling 'chat' event on the server with textbox.value argument
+    socket.emit('chat', textbox.value);
+
+    // Clear input field
+    textbox.value = '';
+};</code></pre>
+            <p>If you want to try use it visit <a href="#download">download page</a></p>
+            <p>To get more information visit <a href="#docs">documentation page</a></p>
+        </section>
+
+        <section id="download">
+            <h2>Download</h2>
+            <p>There are two different part of this library - server and client.</p>
+            <p>First, consider the server part.</p>
+
+            <h2>How to install server part</h2>
+            <p>Use <a href="https://www.npmjs.com/">npm</a>:</p>
+            <pre><code>npm i web-events-server --save</code></pre>
+            <p>Using:</p>
+            <pre><code>var events = require('web-events-server');
+
+events(server, {
+
+    connection(ws, req) {
+        ...
+    },
+
+    headers(headers, req) {
+        ...
+    },
+    
+    customEvent1(arg1, arg2, ..., argN) {
+        ...
+    },
+
+    ...
+
+    customEventN(arg1, arg2, ..., argN) {
+        ...
+    },
+
+    close(code, reason) {
+        ...
+    }
+}); </code></pre>
+            <p><b>Note:</b> Don't forget to separate the handlers of the object using comma.</p>
+
+            <h2>How to install client part</h2>
+            <p>Here is also two ways to use this library:</p>
+            <p><b>1)</b> Just a direct connection in the HTML file: (<a href=""><b>web-events-client.js</b></a>)</p>
+            <pre><code>&lt;script src="web-events-client.js"&gt;&lt;/script&gt;</code></pre>
+            <p>After that you can use global variable <b>events</b> or <b>webEvents</b> if the first was already taken.</p>
+
+            <p><b>2)</b> Using requireJS modules (that's useful for webpack, for example):</p>
+            <p>Install client part through npm:</p>
+            <pre><code>npm i web-events-client --save</code></pre>
+            <p>Then import module in your code:</p>
+            <pre><code>var events = require('web-events-client');</code></pre>
+            <p>Using client part:</p>
+            <pre><code>var events = require('web-events-server');
+
+var socket = events({
+
+    connection(ws, req) {
+        ...
+    },
+
+    customEvent1(arg1, arg2, ..., argN) {
+        ...
+    },
+
+    ...
+
+    customEventN(arg1, arg2, ..., argN) {
+        ...
+    },
+
+    close(code, reason) {
+        ...
+    }
+}); </code></pre>
+            <p><b>Note:</b> Don't forget to separate the handlers of the object using comma.</p>
+            <p>Return value is a object which has three methods to manage a connection:</p>
+            <pre><code>socket.emit(eventName, arg1, ..., argN) // Triggers the event on the server</code></pre>
+            <pre><code>socket.disconnect() // Closes the connection to the server</code></pre>
+            <pre><code>socket.reconnect() // Closes the connection and then again it opens</code></pre>
+
+        </section>
+    </main>
+
+    <footer>
+        © Lozhkin Dmitry, 2018
+    </footer>
+
+    <script src="js/highlight.pack.js"></script>
+    <script>
+            var hash = location.hash.slice(1),
+                pages = ['home', 'download', 'docs', 'help'];
+
+            if (pages.every(function(page) {
+                return page != hash;
+            }))
+                location.hash = 'home';
+    </script>
+    <script>hljs.initHighlightingOnLoad();</script>
+</body>
+</html>

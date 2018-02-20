@@ -1,0 +1,100 @@
+@font-face {
+    font-family: 'Raleway';
+    src: local('Raleway Regular'), 
+        local('Raleway-Regular'), 
+        url('../fonts/ralewayregular.woff2') format('woff2'),
+        url('../fonts/ralewayregular.woff') format('woff'), 
+        url('../fonts/ralewayregular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Raleway';
+    src: local('Raleway Bold'),
+        local('Raleway-Bold'),
+        url('../fonts/ralewaybold.woff2') format('woff2'),
+        url('../fonts/ralewaybold.woff') format('woff'),
+        url('../fonts/ralewaybold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+body {
+    max-width: 700px;
+    margin: 0 auto;
+    background: linear-gradient(#555 0, #333 100px, #fff 100px) no-repeat;
+}
+
+/**** header ****/
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1 {
+    padding: 20px 0;
+    color: white;
+    font-weight: bold;
+}
+
+/* Navivation pane */
+nav {
+    display: flex;
+}
+
+nav > a {
+    margin-left: 10px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* Content */
+h2 {
+    font-size: 2em;
+    margin-bottom: 0;
+}
+
+h2 + p {
+    border-top: 1px solid #000;
+    padding-top: 15px;
+    margin-top: -6px;
+}
+
+h3 {
+    font-size: 1.8em;
+}
+
+h4 {
+    padding-left: 10px;
+    margin-bottom: -10px;
+    font-size: 1.5em;
+}
+
+p {
+    margin-bottom: 15px;
+}
+
+ol {
+    padding-left: 20px;
+}
+
+/**** footer ****/
+footer {
+    text-align: right;
+}
+
+/**** Pages ****/
+section {
+    margin-top: -120px;
+    padding-top: 120px;
+    display: none;
+}
+
+#home:target,
+#download:target,
+#docs:target,
+#help-me:target {
+    display: block;
+}
