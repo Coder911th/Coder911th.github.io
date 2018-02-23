@@ -15,7 +15,7 @@ events(server, {
 
     /*
         This handler will be called when new user 
-        connects to the our server (Special event)
+        connects to the your server (Special event)
     */
     connection() {
         console.log(`New user: ${this.uid}`);
