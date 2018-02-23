@@ -104,7 +104,7 @@ ol {
     font-weight: bold;
 }
 
-/* Tables */
+/**** Tables ****/
 table {
     margin-left: 20px;
     margin-top: -5px;
@@ -112,19 +112,17 @@ table {
 }
 
 td {
-    font-variant: small-caps;
     padding: 10px 20px !important;
     border: 1px solid #ccc;
 }
 
 td:first-of-type {
-    
     font-weight: bold;
 }
 
 td a {
+    font-family: Arial;
     text-decoration: none;
-    font-weight: bold;
 }
 
 /**** footer ****/
@@ -153,4 +151,45 @@ section:target {
     float: right;
     font-weight: bold;
     text-decoration: none;
+}
+
+@media (max-width: 600px) {
+    body {
+        background: linear-gradient(#555 0, #333 120px, #fff 120px) no-repeat;
+    }
+
+    header {
+        flex-direction: column;
+        padding-bottom: 30px;
+    }
+
+    header h1 {
+        padding-bottom: 10px;
+        margin-bottom: 0;
+    }
+
+    header a {
+        margin: 0 15px;
+    }
+
+    section {
+        margin-top: -132px;
+        padding-top: 132px;
+    }
+}
+
+@media (max-width: 320px) {
+    body {
+        background: linear-gradient(#555 0, #333 170px, #fff 170px) no-repeat;
+    }
+
+    header nav {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    section {
+        margin-top: -180px;
+        padding-top: 180px;
+    }
 }
