@@ -31,12 +31,22 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0 10px;
 }
 
 h1 {
     padding: 20px 0;
     color: white;
     font-weight: bold;
+}
+
+header > h1 > a {
+    text-decoration: none;
+    color: white;
+}
+
+header > h1 > a:hover {
+    color: white;
 }
 
 /* Navivation pane */
@@ -52,12 +62,12 @@ nav > a {
 
 /* Content */
 h2 {
-    font-size: 2em;
     margin-bottom: 0;
+    font-size: 2em;
 }
 
 h2 + p {
-    border-top: 1px solid #000;
+    border-top: 1px solid #999;
     padding-top: 15px;
     margin-top: -6px;
 }
@@ -74,27 +84,73 @@ h4 {
 
 p {
     margin-bottom: 15px;
+    line-height: 2;
 }
 
 ol {
     padding-left: 20px;
 }
 
+.support {
+    float: right;
+}
+
+.examples li {
+    padding-left: 10px;
+}
+
+.examples a {
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Tables */
+table {
+    margin-left: 20px;
+    margin-top: -5px;
+    border-collapse: collapse;
+}
+
+td {
+    font-variant: small-caps;
+    padding: 10px 20px !important;
+    border: 1px solid #ccc;
+}
+
+td:first-of-type {
+    
+    font-weight: bold;
+}
+
+td a {
+    text-decoration: none;
+    font-weight: bold;
+}
+
 /**** footer ****/
 footer {
+    padding: 0 5px;
     text-align: right;
 }
 
 /**** Pages ****/
+main {
+    padding: 0 5px;
+}
+
 section {
-    margin-top: -120px;
-    padding-top: 120px;
+    margin-top: -130px;
+    padding-top: 130px;
     display: none;
 }
 
-#home:target,
-#download:target,
-#docs:target,
-#help-me:target {
+section:target {
     display: block;
+}
+
+.download {
+    padding: 5px 5px 0 0;
+    float: right;
+    font-weight: bold;
+    text-decoration: none;
 }

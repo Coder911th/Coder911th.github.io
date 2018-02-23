@@ -13,12 +13,11 @@
 <body>
     
     <header>
-        <h1>Web-events</h1>
+        <h1><a href="#home">Web-events</a></h1>
         <nav>
             <a href="#home">Home</a>
-            <a href="#download">DOWNLOAD</a>
+            <a href="#download">Download</a>
             <a href="#docs">Documentation</a>
-            <a href="#help-me">Help me</a>
         </nav>
     </header>
 
@@ -26,7 +25,112 @@
         <section id="home">
             <h2>What is Web-events?</h2>
             <p>That is a easy way to create event-oriented WebSocket connection between client and server.</p>
+            <p class="support"><b>Support IE 10+ and all modern browsers</b></p>
 
+            <h3>Examples</h3>
+            <ul class="examples">
+                <li><a href="#simple-chat">Exmaple: simple chat</a></li>
+                <li><a href="#rpg">Exmaple: RPG</a></li>
+            </ul>
+        </section>
+
+        <section id="download">
+            <h2>Download</h2>
+            <p>There are two different part of this library - <i>server</i> and <i>client</i>.</p>
+            <p>First, consider the server part.</p>
+
+            <h2>How to install server part</h2>
+            <p>Use <a href="https://www.npmjs.com/package/web-events-server">npm</a>:</p>
+            <pre><code>npm i web-events-server --save</code></pre>
+            <p>Using:</p>
+            <pre><code>var events = require('web-events-server');
+
+var base = events(server, {
+
+    connection(ws, req) {
+        ...
+    },
+
+    headers(headers, req) {
+        ...
+    },
+    
+    customEvent1(arg1, arg2, ..., argN) {
+        ...
+    },
+
+    ...
+
+    customEventN(arg1, arg2, ..., argN) {
+        ...
+    },
+
+    close(code, reason) {
+        ...
+    }
+}); </code></pre>
+            <p><b>Note:</b> Don't forget to separate the handlers of the object using comma.</p>
+            <p>
+                The return value from <code>events</code> is the database object of all active connections like <code>this.base</code> in a handler.
+                You can use it to send messages to users outside the handlers.
+            </p>
+
+            <h2>How to install client part</h2>
+            <p>Here is also two ways to use this library:</p>
+            <p><b>1)</b> Just a direct connection in the HTML file:</p>
+            
+            <table>
+                <tr>
+                    <td>Common</td>
+                    <td><a href="https://raw.githubusercontent.com/Coder911th/web-events-client/master/dist/web-events-client.js" download>web-events-client.js</a></td>
+                </tr>
+                <tr>
+                    <td>Minified</td>
+                    <td><a href="https://raw.githubusercontent.com/Coder911th/web-events-client/master/dist/web-events-client.min.js" download>web-events-client.min.js</a></td>
+                </tr>
+            </table>
+
+            <pre><code>&lt;script src="web-events-client.js"&gt;&lt;/script&gt;</code></pre>
+            <p>After that you can use global variable <b>events</b> or <b>webEvents</b> if the first was already taken.</p>
+
+            <p><b>2)</b> Using requireJS modules (that's useful for webpack, for example):</p>
+            <p>Install client part through <a href="https://www.npmjs.com/package/web-events-client">npm</a>:</p>
+            <pre><code>npm i web-events-client --save</code></pre>
+            <p>Then import module in your code:</p>
+            <pre><code>var events = require('web-events-client');</code></pre>
+            <p>Using client part:</p>
+            <pre><code>var events = require('web-events-server');
+
+var socket = events({
+
+    connection(ws, req) {
+        ...
+    },
+
+    customEvent1(arg1, arg2, ..., argN) {
+        ...
+    },
+
+    ...
+
+    customEventN(arg1, arg2, ..., argN) {
+        ...
+    },
+
+    close(code, reason) {
+        ...
+    }
+}); </code></pre>
+            <p><b>Note:</b> Don't forget to separate the handlers of the object using comma.</p>
+            <p>Return value is a object which has three methods to manage a connection:</p>
+            <pre><code>socket.emit(eventName, arg1, ..., argN) // Triggers the event on the server</code></pre>
+            <pre><code>socket.disconnect() // Closes the connection to the server</code></pre>
+            <pre><code>socket.reconnect() //  Closes the connection and then again opens it</code></pre>
+
+        </section>
+
+        <section id="simple-chat">
+            <a href="examples/Chat.zip" class="download">DOWNLOAD SOURCE</a>
             <h2>Example: simple chat</h2>
             <p>Let's create simple common chat.</p>
 
@@ -43,15 +147,12 @@ let app = express()
 // Creating HTTP-server
 let server = http.createServer(app);
 
-// The base of active users
-let clients = {};
-
 // Binding event handlers to the server
 events(server, {
 
     /*
         This handler will be called when new user 
-        connects to the our server (Special event)
+        connects to the your server (Special event)
     */
     connection() {
         console.log(`New user: ${this.uid}`);
@@ -61,11 +162,7 @@ events(server, {
             This event will be triggered by user as soon as
             he receives it.
         */
-        this.emit('printToChat', 'A new user joined the chat.');
-
-        // Adding uid of user to the base
-        // This action will help you broadcast messages
-        clients[this.uid] = this; 
+        this.emit('printToChat', 'You have been connected to a chat');
     },
 
     // Client triggered custom event named 'chat' on the server (Custom event)
@@ -74,8 +171,7 @@ events(server, {
         console.log(`From ${this.uid} recieves a message "${message}"`);
 
         // Send this broadcast message
-        for (let key in clients) // 
-            clients[key].emit('chat', message);
+        this.base.forEach(client => client.emit('printToChat', message));
 
         // If user sent a message like 'kick me' then disconnect him from chat
         if (message == 'kick me')
@@ -85,7 +181,6 @@ events(server, {
     // This event will be triggered when user has been disconnected (Special event)
     close(code, reason) {
         console.log(`Close connection ${this.uid}`);
-        delete clients[this.uid]; // Removing the client from the base
     }
 
 });
@@ -130,7 +225,7 @@ var socket = events({
 
     // Connection has been closed (Special event)
     close() {
-        console.log('Вы были отключены');
+        console.log('You have been disconnected!');
     }
 
 });
@@ -143,87 +238,211 @@ sendButton.onclick = function() {
     // Clear input field
     textbox.value = '';
 };</code></pre>
+
             <p>If you want to try use it visit <a href="#download">download page</a></p>
             <p>To get more information visit <a href="#docs">documentation page</a></p>
         </section>
 
-        <section id="download">
-            <h2>Download</h2>
-            <p>There are two different part of this library - server and client.</p>
-            <p>First, consider the server part.</p>
+        <section id="rpg">
+            <a href="examples/RPG.zip" class="download">DOWNLOAD SOURCE</a>
+            <h2>Example: RPG</h2>
+            <p>
+                Now let's create small textual RPG-simulator.<br>
+                You connect to the game server which give you 100 HP and list of your enemies (they are also really gamers and have online status).<br>
+                Game client have to display your currently HP and list of enemies with 'hit' button.<br>
+                After press this button the enemy will taken a damage around 3-43 HP.<br>
+                Between attacks every gamer have to waiting for 5 seconds before next attack.<br>
+                If your HP is zero your client has to display message with the text "Game over" and breaks connection.<br>
+            </p>
+            <h3>Server</h3>
+            <pre><code>const
+    http    = require('http'),
+    express = require('express'),
+    events  = require('web-events-server'); // connect web-events-server
 
-            <h2>How to install server part</h2>
-            <p>Use <a href="https://www.npmjs.com/">npm</a>:</p>
-            <pre><code>npm i web-events-server --save</code></pre>
-            <p>Using:</p>
-            <pre><code>var events = require('web-events-server');
+// Passing the client files to the users
+let app = express()
+    .use('/', express.static('client'));
 
+// Creating HTTP-server
+let server = http.createServer(app);
+
+// Binding event handlers to the server
 events(server, {
 
-    connection(ws, req) {
-        ...
+    /*
+        This handler will be called when new user 
+        connects to the our server (Special event)
+    */
+    connection() {
+        /*** At the moment, the enumeration methods of this.base ignore this user ***/
+        console.log(`New gamer: ${this.uid}`);
+
+        // Set a new user HP = 100
+        this.hp = 100;
+
+        // Set time of last hit of this user
+        this.lastHit = new Date(0);
+
+        /*
+            Trigger the 'newUser' event to all active players.
+            Pass uid of client and his started hp
+        */
+        this.base.forEach(client => client.emit('newUser', this.uid, 100));
+
+        // The array of information about active players
+        let players = this.base.map(client => ({
+            name: client.uid,
+            hp: client.hp
+        }));
+
+        // Sending the data about all active players to the new player
+        this.emit('startedData', [this.uid].concat(players));
     },
 
-    headers(headers, req) {
-        ...
-    },
-    
-    customEvent1(arg1, arg2, ..., argN) {
-        ...
+    // Client triggered custom event named 'hit' on the server (Custom event)
+    hit(target_uid) {
+
+        // Let's see if this gamer can attack someone
+        if (Date.now() - this.lastHit < 5 * 1000)
+            return; // Ignoring the hit request
+
+        // Getting client object of target from base
+        let target = this.base[target_uid];
+
+        // Checking the existence of the target
+        if (!target)
+            return; // Ignoring the hit request
+
+        // Checking if the target player is alive
+        if (target.hp <= 0)
+            return; // Ignoring the hit request
+
+        // Obtaining a random damage between 3 and 43
+        let damage = Math.round(3 + 40 * Math.random());
+
+        console.log(`User ${this.uid} attacks ${target.uid} — ${damage} HP`);
+
+        // Subtract HP
+        target.hp -= damage;
+
+        // Remembering the last hit time
+        this.lastHit = Date.now();
+
+        /* 
+            If player hasn't HP to continue the game, 
+            sending to everybody players 'game over' event.
+            Otherwise, sending updated HP data to everybody active players.
+        */
+        if (target.hp <= 0) {
+            this.base.forEach(client => client.emit('gameOver', target.uid));
+            target.close(); // Closing connection
+            } else {
+            this.base.forEach(client => client.emit('attacked', target.uid, target.hp));
+            }
     },
 
-    ...
-
-    customEventN(arg1, arg2, ..., argN) {
-        ...
-    },
-
+    // This event will be triggered when user has been disconnected (Special event)
     close(code, reason) {
-        ...
+        /*** You are no longer in the this.base ***/
+        console.log(`Close connection: ${this.uid}`);
+
+        /*
+            If gamer close connection then send to
+            everybody active user the message 'gameOver'
+            with uid of this gamer.
+        */
+        this.base.forEach(client => client.emit('gameOver', this.uid));
     }
-}); </code></pre>
-            <p><b>Note:</b> Don't forget to separate the handlers of the object using comma.</p>
 
-            <h2>How to install client part</h2>
-            <p>Here is also two ways to use this library:</p>
-            <p><b>1)</b> Just a direct connection in the HTML file: (<a href=""><b>web-events-client.js</b></a>)</p>
-            <pre><code>&lt;script src="web-events-client.js"&gt;&lt;/script&gt;</code></pre>
-            <p>After that you can use global variable <b>events</b> or <b>webEvents</b> if the first was already taken.</p>
+});
 
-            <p><b>2)</b> Using requireJS modules (that's useful for webpack, for example):</p>
-            <p>Install client part through npm:</p>
-            <pre><code>npm i web-events-client --save</code></pre>
-            <p>Then import module in your code:</p>
-            <pre><code>var events = require('web-events-client');</code></pre>
-            <p>Using client part:</p>
-            <pre><code>var events = require('web-events-server');
+// Start server on port 80
+server.listen(80);</code></pre>
+            <h3>Client</h3>
+            <h4>Markup</h4>
+            <pre><code>&lt;h1&gt;RPG&lt;/h1&gt;
+&lt;div id="my-hp"&gt;100&lt;/div&gt;
+
+&lt;script src="jquery.js"&gt;&lt;/script&gt;
+&lt;script src="web-events-client.js"&gt;&lt;/script&gt;
+&lt;script src="client-logic.js"&gt;&lt;/script&gt;</code></pre>
+            <h4>client-logic.js</h4>
+            <pre><code>function createPlayer(name, hp) {
+    return $(
+        '&lt;div class="player" uid="' + name + '"&gt;' +
+            '&lt;button&gt;Hit&lt;/button&gt;' +
+            '&lt;span&gt;' + name + '&lt;/span&gt;' +
+            '&lt;span&gt;HP: ' + hp + '&lt;/span&gt;' +
+        '&lt;/div&gt;'
+    );
+}
+
+var my_uid = null;
 
 var socket = events({
 
-    connection(ws, req) {
-        ...
+    // Received data on all active players and your unique id
+    startedData(myUID, ...players) {
+
+        // Saving my uid
+        my_uid = myUID;
+
+        // Placing each received player in the &lt;body&gt;
+        for (let player of players)
+            createPlayer(player.name, player.hp)
+                .appendTo('body');
     },
 
-    customEvent1(arg1, arg2, ..., argN) {
-        ...
+    // Received the data about a new user
+    newUser(name, hp) {
+        createPlayer(name, hp) // Create Markup
+            .appendTo('body'); // put it in &lt;body&gt;
     },
 
-    ...
+    // Someone was attacked (name is target uid, hp is new  HP)
+    attacked(name, hp) {
 
-    customEventN(arg1, arg2, ..., argN) {
-        ...
+        // If I am the target
+        if (name == my_uid)
+            $('#my-hp')
+                .text(hp);
+        else
+            $('[uid="' + name + '"]')
+                .children()
+                .last()
+                .text(hp); // Updating hp value
     },
 
-    close(code, reason) {
-        ...
+    // The player whose name is the first argument is lost
+    gameOver(name) {
+        if (name == my_uid) {
+            $('#my-hp')
+                .text(0);
+            
+            alert('GAME OVER');
+        }
+        else
+            $('[uid="' + name + '"]')
+                .children()
+                .first()
+                    .prop('disabled', true) // Blocking the hit button
+                    .end()
+                .last()
+                    .text(0); // Setting hp is zero
     }
-}); </code></pre>
-            <p><b>Note:</b> Don't forget to separate the handlers of the object using comma.</p>
-            <p>Return value is a object which has three methods to manage a connection:</p>
-            <pre><code>socket.emit(eventName, arg1, ..., argN) // Triggers the event on the server</code></pre>
-            <pre><code>socket.disconnect() // Closes the connection to the server</code></pre>
-            <pre><code>socket.reconnect() // Closes the connection and then again it opens</code></pre>
 
+});
+
+// Hit handler
+$('body')
+    .on('click', 'button', function() {
+        var name = $(this).next().text();
+        socket.emit('hit', name);
+    });</code></pre>
+
+            <p>If you want to try use it visit <a href="#download">download page</a></p>
+            <p>To get more information visit <a href="#docs">documentation page</a></p>
         </section>
     </main>
 
@@ -233,13 +452,12 @@ var socket = events({
 
     <script src="js/highlight.pack.js"></script>
     <script>
-            var hash = location.hash.slice(1),
-                pages = ['home', 'download', 'docs', 'help'];
-
-            if (pages.every(function(page) {
-                return page != hash;
-            }))
-                location.hash = 'home';
+        // Router
+        var hash = location.hash.slice(1),
+            page = document.getElementById(hash);
+        
+        if (!page || page.nodeName != 'SECTION')
+            location.hash = 'home';
     </script>
     <script>hljs.initHighlightingOnLoad();</script>
 </body>
