@@ -1,0 +1,45 @@
+body {
+    font-family: Arial;
+}
+
+.player {
+    padding: 5px;
+    border: 1px solid #000;
+    background: #ccc;
+}
+
+span {
+    padding: 0 10px;
+}
+
+button {
+    transition: .2s;
+    padding: 5px 10px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    background: #fff;
+    outline: none;
+}
+
+button:hover {
+    background: #f0f0f0;
+    cursor: pointer;
+}
+
+button:active {
+    box-shadow: 0 0 5px #000;
+}
+
+button:disabled {
+    background: #999;
+}
+
+#my-hp {
+    padding: 0 10px 10px;
+    margin-top: -20px;
+    font-size: 1.5em;
+}
+
+#my-hp::before {
+    content: "My HP: ";
+}

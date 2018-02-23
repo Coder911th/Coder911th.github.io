@@ -1,0 +1,16 @@
+{
+  "name": "rpg",
+  "version": "1.0.0",
+  "description": "example for web-events packet",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Lozhkin Dmitry",
+  "license": "MIT",
+  "dependencies": {
+    "express": "4.16.2",
+    "web-events-server": "^1.1.0"
+  }
+}
