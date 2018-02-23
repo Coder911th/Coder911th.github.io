@@ -11,6 +11,6 @@
   "license": "MIT",
   "dependencies": {
     "express": "4.16.2",
-    "web-events-server": "^1.1.0"
+    "web-events-server": "^2.0.0"
   }
 }
