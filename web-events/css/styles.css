@@ -20,10 +20,16 @@
     font-style: normal;
 }
 
+html,
+body {
+    min-height: 100%;
+}
+
 body {
     max-width: 700px;
     margin: 0 auto;
-    background: linear-gradient(#555 0, #333 100px, #fff 100px) no-repeat;
+    background: linear-gradient(#555 0, #333 100px, #fafafa 100px) no-repeat;
+    font-family: Arial, Raleway;
 }
 
 /**** header ****/
@@ -38,6 +44,7 @@ h1 {
     padding: 20px 0;
     color: white;
     font-weight: bold;
+    font-family: Raleway;
 }
 
 header > h1 > a {
@@ -82,9 +89,14 @@ h4 {
     font-size: 1.5em;
 }
 
+h5 {
+    font-size: 1.5em;
+}
+
 p {
+    text-indent: 20px;
     margin-bottom: 15px;
-    line-height: 2;
+    line-height: 1.5;
 }
 
 ol {
@@ -93,6 +105,7 @@ ol {
 
 .support {
     float: right;
+    font-family: Raleway;
 }
 
 .examples li {
@@ -128,6 +141,7 @@ td a {
 /**** footer ****/
 footer {
     padding: 0 5px;
+    font-family: Raleway;
     text-align: right;
 }
 
@@ -140,12 +154,27 @@ section {
     margin-top: -130px;
     padding-top: 130px;
     display: none;
+    background: #fafafa content-box;
 }
 
 section:target {
     display: block;
 }
 
+.not-found {
+    position: absolute;
+    top: 130px;
+    left: 5px;
+    right: 5px;
+    
+    font: 3em Raleway;
+    text-align: center;
+
+    z-index: -1;
+}
+
+
+/**** Others ****/
 .download {
     padding: 5px 5px 0 0;
     float: right;
@@ -153,9 +182,25 @@ section:target {
     text-decoration: none;
 }
 
+.list-item {
+    text-indent: 0;
+}
+
+.list-title {
+    margin-bottom: 5px;
+    font-size: 1.2em;
+}
+
+/**** Media ****/
+@media (max-width: 650px) {
+    .not-found {
+        top: 170px;
+    }
+}
+
 @media (max-width: 600px) {
     body {
-        background: linear-gradient(#555 0, #333 120px, #fff 120px) no-repeat;
+        background: linear-gradient(#555 0, #333 120px, #fafafa 120px) no-repeat;
     }
 
     header {
@@ -180,7 +225,7 @@ section:target {
 
 @media (max-width: 320px) {
     body {
-        background: linear-gradient(#555 0, #333 170px, #fff 170px) no-repeat;
+        background: linear-gradient(#555 0, #333 170px, #fafafa 170px) no-repeat;
     }
 
     header nav {
@@ -191,5 +236,9 @@ section:target {
     section {
         margin-top: -180px;
         padding-top: 180px;
+    }
+
+    .not-found {
+        top: 200px;
     }
 }

@@ -77,7 +77,7 @@ var base = events(server, {
 
             <h2>How to install client part</h2>
             <p>Here is also two ways to use this library:</p>
-            <p><b>1)</b> Just a direct connection in the HTML file:</p>
+            <p class="list-item"><b>1)</b> Just a direct connection in the HTML file:</p>
             
             <table>
                 <tr>
@@ -93,7 +93,7 @@ var base = events(server, {
             <pre><code>&lt;script src="web-events-client.js"&gt;&lt;/script&gt;</code></pre>
             <p>After that you can use global variable <b>events</b> or <b>webEvents</b> if the first was already taken.</p>
 
-            <p><b>2)</b> Using requireJS modules (that's useful for webpack, for example):</p>
+            <p class="list-item"><b>2)</b> Using requireJS modules (that's useful for webpack, for example):</p>
             <p>Install client part through <a href="https://www.npmjs.com/package/web-events-client">npm</a>:</p>
             <pre><code>npm i web-events-client --save</code></pre>
             <p>Then import module in your code:</p>
@@ -246,13 +246,12 @@ sendButton.onclick = function() {
         <section id="rpg">
             <a href="examples/RPG.zip" class="download">DOWNLOAD SOURCE</a>
             <h2>Example: RPG</h2>
-            <p>
-                Now let's create small textual RPG-simulator.<br>
-                You connect to the game server which give you 100 HP and list of your enemies (they are also really gamers and have online status).<br>
-                Game client have to display your currently HP and list of enemies with 'hit' button.<br>
-                After press this button the enemy will taken a damage around 3-43 HP.<br>
-                Between attacks every gamer have to waiting for 5 seconds before next attack.<br>
-                If your HP is zero your client has to display message with the text "Game over" and breaks connection.<br>
+            <p>Now let's create small textual RPG-simulator.<p>
+            <p>You connect to the game server which give you 100 HP and list of your enemies (they are also really gamers and have online status).</p>
+            <p>Game client have to display your currently HP and list of enemies with 'hit' button.</p>
+            <p>After press this button the enemy will taken a damage around 3-43 HP.</p>
+            <p>Between attacks every gamer have to waiting for 5 seconds before next attack.</p>
+            <p>If your HP is zero your client has to display message with the text "Game over" and breaks connection.</p>
             </p>
             <h3>Server</h3>
             <pre><code>const
@@ -304,7 +303,7 @@ events(server, {
     hit(target_uid) {
 
         // Let's see if this gamer can attack someone
-        if (Date.now() - this.lastHit < 5 * 1000)
+        if (Date.now() - this.lastHit &lt; 5 * 1000)
             return; // Ignoring the hit request
 
         // Getting client object of target from base
@@ -315,7 +314,7 @@ events(server, {
             return; // Ignoring the hit request
 
         // Checking if the target player is alive
-        if (target.hp <= 0)
+        if (target.hp &lt;= 0)
             return; // Ignoring the hit request
 
         // Obtaining a random damage between 3 and 43
@@ -334,7 +333,7 @@ events(server, {
             sending to everybody players 'game over' event.
             Otherwise, sending updated HP data to everybody active players.
         */
-        if (target.hp <= 0) {
+        if (target.hp &lt;= 0) {
             this.base.forEach(client => client.emit('gameOver', target.uid));
             target.close(); // Closing connection
             } else {
@@ -444,6 +443,138 @@ $('body')
             <p>If you want to try use it visit <a href="#download">download page</a></p>
             <p>To get more information visit <a href="#docs">documentation page</a></p>
         </section>
+
+        <!-- DOCUMENTATION -->
+        <section id="docs">
+            <h2>Documentation</h2>
+            <p>This documentation consist of two parts. First part describes how to use web-events-server, the second - web-events-client.</p>
+            <p>For more information on how to install them, see <a href="#download">download page</a>.</p>
+            
+            <h2>Server</h2>
+            <p>Server always are connected through module import:</p>
+            <pre><code>var events = require('web-events-server');</code></pre>
+            <p>After that you need create HTTP-server and pass it to the <code>events</code> function as first argument. The second argument is an object with event handlers.</p>
+            <pre><code>var base = events(server, {
+    event1() { ... },
+    ...
+    eventN() { ... }
+});</code></pre>
+            <p><code>event1</code>, ..., <code>eventN</code> - are custom event names. You can trigger any of them from any client by using <code>emit</code> function about which will be discussed later.</p>
+
+            <p>There are two types of event handlers:</p>
+            <p class="list-item"><b>1)</b> <b><i>Special events</i></b> - which can not be overridden. They are trigger automatically when special actions occur. In addition, the signature (arguments) of such events can not be redefined either.</p>
+            <p class="list-title">At the moment there are three such events:</p>
+            <ul>
+                <li><b>connection</b>(webSocket, reqest) - occurs when a new client connected to the server. Gets as arguments the Web-Socket object and object of the request. At the time when the event handler of this event is called the client object it will still not be available in <code>this.base</code>. Because of this, the new client will be ignored by methods such as <code>forEach</code> or <code>map</code> of <code>this.base</code> object.</li>
+                <li><b>checkHeaders</b>(headers, reqest) - occurs before a connection is established. Here you can read or set HTTP-headers before start connection. In this handler <code>this</code> is <code>null</code>. The first argument is a array of response headers (each is string). You can add header to the this array to send cookie for example. You can read cookie from <code>reqest.headers.cookie</code>.</li>
+                <li><b>close</b>(code, reason) - occurs when user disconnected from the server. The arguments are exactly the same as in the <a href="https://www.npmjs.com/package/ws">'ws'</a> package.</li>
+            </ul>
+
+            <p class="list-item"><b>2)</b> <b><i>Custom events</i></b> - are exactly what you need to love this library for. You can name your custom event as you want. You can define the list of arguments of the handler for this event as you like.</p>
+            
+            <h5>Properties of <code>this</code> for server</h5>
+            <p> Inside each  an event handler (except <i>checkHeaders</i>) you can use methods of <code>this</code> to interact with the user.</p>
+            <p><code>this</code> points to object of current client which triggered the event.</p>
+            <p class="list-title">Structure of <u>the client object</u> (<code>this</code> in a handler):</p>
+            <ul>
+                <li>
+                    <b>emit</b>(eventName, arg1, ..., argN) - triggers the custom event named <i>"eventName"</i> and passes arguments.<br>
+                    You can pass several arguments one at a time, in this case their order is preserved when received:
+                    <pre><code>// Server
+var base = events(server, {
+    connection() {
+        ...
+        // Sending initial data to the new client
+        this.emit('startGame', hp, name, attack);
+    }
+})</code></pre>
+                    <pre><code>// Client
+var socket = events({
+    startGame(hp, name, attack) {
+        // Working with data
+    }
+})</code></pre>
+                </li>
+                <li>
+                    <b>close</b>() - closes the connection with the client.
+                </li>
+                <li>
+                    <b>uid</b> - unique identifier of the client. At the one time, each active client has its own unique id.
+                </li>
+                <li>
+                    <b>ignore</b> - a boolean variable that determines whether to ignore the current user when using the methods of enumerating all users, which will be described a little later.<br>
+                    When a special "connection" event is activated, this property is set to "false", but if you need to consider this new user when iterating, you can set this property to "true".
+                </li>
+                <li>
+                    <b>base</b> - base of all active users. Access to the object of a specific client occurs by uid.<br>
+                    In addition, this object has additional methods for enumerating all active users:
+                    <ul>
+                        <li>base.<b>forEach</b>(function(client) { ... }) - performing a callback for each client. The argument <i>client</i> is a <u>client object</u>.</li>
+                        <li>base.<b>map</b>(function(client) { ... }) - simulates the behavior of the array method of the same name. The return values generate an array, and then return it as a result. The argument <i>client</i> is a <u>client object</u>.</li></li>
+                    </ul>
+                </li>
+            </ul>
+            <p>The server-side method <code>events(sever, {...})</code> returns the <code>base</code> that you can you use to interact with all active users outside the event handler.</p>
+            <h2>Client</h2>
+            <p>Connection:</p>
+            <pre><code>var socket = events({
+    // Special events
+    connection() { ... },
+    close()      { ... },
+    
+    // Custom events
+    customEvent1(arg1, ..., argN) { ... },
+    ...,
+    customEventX(arg1, ..., argN) { ... }
+})</code></pre>
+            <p><b>Note:</b> Don't forget to separate the handlers of the object using comma.</p>
+            <p>The client also has two types of events. These are special and custom events.</p>
+            <p class="list-item"><b>1)</b> Special events are only two - <b>connection</b> and <b>close</b>. You don't need to always specify them. Do it only if you need it. Both events don't take arguments.</p>
+            <p class="list-item"><b>2)</b> Custom events can have any name and take any number of arguments.</p>
+            <h3>Socket object</h3>
+            <p>This object allows you to manage you connection. Inside the handlers, this object is available as <code>this</code>. Also, this object is returned from <code>events({ ... })</code> to trigger events outside the handlers.</p>
+            <p class="list-title">Structure of socket object</p>
+            <ul>
+                <li><b>emit</b>(eventName, arg1, ..., argN) - triggers the custom event named "eventName" and passes arguments. Completely similar to the server <code>emit</code>.</li>
+                <li>
+                    <b>disconnect</b>() - close connection to the server.
+                </li>
+                <li>
+                    <b>reconnect</b>() - reconnect to the server.
+                </li>
+            </ul>
+
+            <h2>Returned emit</h2>
+            <p>From any handler you can return a special value that will be interpreted as an implicit call to <code>this.emit</code>.</p>
+            <ul>
+                <li>
+                    You can return an array. The first argument is the name of the custom event. Others are arguments.
+                    <pre><code>customEventHandler() {
+    return ['setState', 100, 50, 'Hello World!'];
+    // This is equivalent of this.emit('setState', 100, 50, 'Hello World!')
+}</code></pre>
+                </li>
+                <li>
+                    You can return an object. Type property <code>type</code> is a event name.
+                    <pre><code>customEventHandler() {
+    return {
+        type: 'setState',
+        name: 'Jack',
+        health: 100
+    };
+    /*
+        This is equivalent of this.emit('setState', {
+            name: 'Jack',
+            health: 100
+        });
+    */
+}</code></pre>
+                </li>
+            </ul>
+        </section>
+
+        <div class="not-found">404 Not Found</div>
+
     </main>
 
     <footer>
