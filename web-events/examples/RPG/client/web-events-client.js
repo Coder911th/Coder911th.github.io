@@ -1,7 +1,7 @@
 function webEvents(evs) {
 
     // Версия web-events-client
-    var VERSION = '1.1.1';
+    var VERSION = '2.0.1';
 
     /*
         Обёртка над пользовательским событием
@@ -18,8 +18,7 @@ function webEvents(evs) {
         if (typeof returnValue != "object")
             return; // Если возвращен примитив, игнорируем
 
-        var eventName, // Имя вызываемого на другой стороне события
-            args;      // Аргументы вызова
+        var eventName; // Имя вызываемого на другой стороне события
 
         if (returnValue instanceof Array) {
             /*
@@ -28,6 +27,14 @@ function webEvents(evs) {
             */
             eventName = returnValue[0];
             args = returnValue.slice(1);
+            
+            /*
+                Вызываем событие на другой стороне соединения
+                При получении аргументов функция emit оборачивает их в массив.
+                Сейчас в args данные уже находятся в виде массива и нужно
+                передать их по одному, поэтому вызываем emit через apply.
+            */
+            emit.apply(client, [eventName].concat(args));
         } else {
             /*
                 Из обработчика бы возвращен объект
@@ -35,11 +42,13 @@ function webEvents(evs) {
                 а остальные свойства будут именованными аргументами
             */
             eventName = returnValue.type;
-            delete args.type; // Убираем свойство type из аргументов
-        }
+            args = returnValue;
 
-        // Вызываем событие на другой стороне соединения
-        client.emit(eventName, args);
+            delete args.type; // Убираем свойство type из аргументов
+            
+            // Вызываем событие на другой стороне соединения
+            client.emit(eventName, args);
+        }
     }
 
     /*
@@ -57,9 +66,6 @@ function webEvents(evs) {
     function emit(eventName) {
         // Аргументы вызова, отправляемые серверу
         var args = Array.prototype.slice.call(arguments, 1);
-
-        if (args.length == 1 && typeof args[0] == 'object')
-            args = args[0]; // Если аргументы были переданы через объект (массив)
 
         socket.send(JSON.stringify({
             type: eventName,

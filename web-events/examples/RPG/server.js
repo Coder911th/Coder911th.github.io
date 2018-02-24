@@ -40,7 +40,7 @@ events(server, {
         }));
 
        // Sending the data about all active players to the new player
-       this.emit('startedData', [this.uid].concat(players));
+       this.emit('startedData', this.uid, ...players);
     },
 
     // Client triggered custom event named 'hit' on the server (Custom event)
