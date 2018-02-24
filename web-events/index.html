@@ -41,7 +41,7 @@
 
             <h2>How to install server part</h2>
             <p>Use <a href="https://www.npmjs.com/package/web-events-server">npm</a>:</p>
-            <pre><code>npm i web-events-server --save</code></pre>
+            <pre><code><b>npm</b> i <b>web-events-server</b> --save</code></pre>
             <p>Using:</p>
             <pre><code>var events = require('web-events-server');
 
@@ -95,7 +95,7 @@ var base = events(server, {
 
             <p class="list-item"><b>2)</b> Using requireJS modules (that's useful for webpack, for example):</p>
             <p>Install client part through <a href="https://www.npmjs.com/package/web-events-client">npm</a>:</p>
-            <pre><code>npm i web-events-client --save</code></pre>
+            <pre><code><b>npm</b> i <b>web-events-client</b> --save</code></pre>
             <p>Then import module in your code:</p>
             <pre><code>var events = require('web-events-client');</code></pre>
             <p>Using client part:</p>
@@ -123,9 +123,9 @@ var socket = events({
 }); </code></pre>
             <p><b>Note:</b> Don't forget to separate the handlers of the object using comma.</p>
             <p>Return value is a object which has three methods to manage a connection:</p>
-            <pre><code>socket.emit(eventName, arg1, ..., argN) // Triggers the event on the server</code></pre>
-            <pre><code>socket.disconnect() // Closes the connection to the server</code></pre>
-            <pre><code>socket.reconnect() //  Closes the connection and then again opens it</code></pre>
+            <pre><code>socket.<b>emit</b>(eventName, arg1, ..., argN) // Triggers the event on the server</code></pre>
+            <pre><code>socket.<b>disconnect</b>() // Closes the connection to the server</code></pre>
+            <pre><code>socket.<b>reconnect</b>() //  Closes the connection and then again opens it</code></pre>
 
         </section>
 
